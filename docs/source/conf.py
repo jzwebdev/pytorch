@@ -195,6 +195,8 @@ autodoc_inherit_docstrings = False
 # Disable displaying type annotations, these can be very verbose
 autodoc_typehints = 'none'
 
+# Enable overriding of function signatures in the first line of the docstring.
+autodoc_docstring_signature = True
 
 # -- katex javascript in header
 #
@@ -223,6 +225,7 @@ html_theme_options = {
     'collapse_navigation': False,
     'display_version': True,
     'logo_only': True,
+    'analytics_id': 'UA-117752657-2',
 }
 
 html_logo = '_static/img/pytorch-logo-dark-unstable.png'
@@ -364,6 +367,7 @@ import sphinx.ext.doctest
 doctest_test_doctest_blocks = ''
 doctest_default_flags = sphinx.ext.doctest.doctest.ELLIPSIS
 doctest_global_setup = '''
+import torch
 try:
     import torchvision
 except ImportError:

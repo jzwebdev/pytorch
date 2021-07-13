@@ -32,7 +32,7 @@ private:
 };
 }
 
-OpRegistrationListener::~OpRegistrationListener() {}
+OpRegistrationListener::~OpRegistrationListener()= default;
 
 Dispatcher::Dispatcher()
 : operators_()
@@ -41,7 +41,7 @@ Dispatcher::Dispatcher()
 , listeners_(std::make_unique<detail::RegistrationListenerList>())
 , mutex_() {}
 
-Dispatcher::~Dispatcher() {}
+Dispatcher::~Dispatcher() = default;
 
 C10_EXPORT Dispatcher& Dispatcher::realSingleton() {
   static Dispatcher _singleton;
@@ -85,6 +85,16 @@ OperatorHandle Dispatcher::findSchemaOrThrow(const char* name, const char* overl
     }
   }
   return it.value();
+}
+
+const std::vector<OperatorName> Dispatcher::getAllOpNames() {
+  return operatorLookupTable_.read([&] (const ska::flat_hash_map<OperatorName, OperatorHandle>& operatorLookupTable) -> std::vector<OperatorName> {
+    std::vector<OperatorName> allOpNames;
+    for (const auto& op : operatorLookupTable) {
+        allOpNames.push_back(op.first);
+    }
+    return allOpNames;
+  });
 }
 
 // Postcondition: caller is responsible for disposing of registration when they
@@ -191,6 +201,7 @@ RegistrationHandleRAII Dispatcher::registerImpl(
     *this,
     dispatch_key,
     std::move(kernel),
+    // NOLINTNEXTLINE(performance-move-const-arg)
     std::move(cpp_signature),
     std::move(inferred_function_schema),
     std::move(debug)
